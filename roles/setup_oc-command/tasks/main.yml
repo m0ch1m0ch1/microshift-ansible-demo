@@ -1,0 +1,26 @@
+---
+- name: Enable repositories for openshift-clients
+  community.general.rhsm_repository:
+    name:
+      - "rhocp-4.12-for-rhel-8-{{ ansible_architecture }}-rpms"
+    state: enabled
+
+- name: Install openshift-clients
+  dnf:
+    name: openshift-clients
+    state: present
+
+- name: Create folder for kubeconfig
+  file:
+    path: "/home/{{ ansible_user }}/.kube/"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Copy kubeconfig to .kube folder
+  copy:
+    src: /var/lib/microshift/resources/kubeadmin/kubeconfig
+    dest: "/home/{{ ansible_user }}/.kube/config"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    remote_src: yes

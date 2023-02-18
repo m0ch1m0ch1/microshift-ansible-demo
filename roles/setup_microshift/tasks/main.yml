@@ -1,0 +1,51 @@
+---
+- name: Enable repositories for MicroShift
+  community.general.rhsm_repository:
+    name:
+      - "rhocp-4.12-for-rhel-8-{{ ansible_architecture }}-rpms"
+      - "fast-datapath-for-rhel-8-{{ ansible_architecture }}-rpms"
+    state: enabled
+
+- name: Install MicroShift
+  dnf:
+    name: microshift
+    state: present
+
+- name: Copy pull secret to remote environment
+  copy:
+    src: ./files/openshift-pull-secret
+    dest: /etc/crio/
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Start service firewalld
+  service:
+    name: firewalld
+    state: started
+
+- name: Add a firewalld rule about 10.42.0.0/16
+  firewalld:
+    zone: trusted
+    source: 10.42.0.0/16
+    state: enabled
+    permanent: yes
+    immediate: yes
+
+- name: Add a firewalld rule about 169.254.169.1
+  firewalld:
+    zone: trusted
+    source: 169.254.169.1
+    state: enabled
+    permanent: yes
+    immediate: yes
+
+- name: Start service MicroShift
+  service:
+    name: microshift
+    state: started
+
+- name: Enable service MicroShift
+  service:
+    name: microshift
+    enabled: yes

@@ -1,0 +1,5 @@
+[remote]
+0.0.0.0
+
+[remote:vars]
+ansible_user=hogehoge
